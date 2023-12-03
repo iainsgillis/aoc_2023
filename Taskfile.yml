@@ -1,0 +1,42 @@
+# https://taskfile.dev
+
+version: '3'
+
+vars:
+  d: 1
+
+tasks:
+  setup:
+    cmds: 
+      - |
+        day="$(printf '%02d' {{.d}})"
+        cp -r template day$day
+    silent: true
+  p2:
+    cmds:
+      - |
+        day="$(printf '%02d' {{.d}})"
+        cp day$day/part1.py day$day/part2.py
+      - cp day$day/part1.txt day$day/part2.txt
+    silent: true
+  test:
+    cmds:
+      - |
+        day="$(printf '%02d' {{.d}})"
+        pytest ./day$day
+    silent: true
+  fmt_all:
+    cmds:
+      - black .
+  fmt:
+    cmds:
+      - |
+        day="$(printf '%02d' {{.d}})"
+        black ./day$day
+  ex:
+    cmds:
+      - |
+        X_FORMATTED="$(printf '%02d' {{.d}})"
+        echo "Formatted X $X_FORMATTED"
+        echo "Formatted X $X_FORMATTED"
+    silent: false
