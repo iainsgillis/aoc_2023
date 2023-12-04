@@ -4,6 +4,7 @@ version: '3'
 
 vars:
   d: 1
+  f: 1.1
 
 tasks:
   setup:
@@ -33,10 +34,11 @@ tasks:
       - |
         day="$(printf '%02d' {{.d}})"
         black ./day$day
-  ex:
+  run:
     cmds:
       - |
-        X_FORMATTED="$(printf '%02d' {{.d}})"
-        echo "Formatted X $X_FORMATTED"
-        echo "Formatted X $X_FORMATTED"
-    silent: false
+        {{$a := split "." .f}}
+        day="$(printf '%02d' {{$a._0}})"
+        part={{$a._1}}
+        python ./day$day/part$part.py
+    silent: true
