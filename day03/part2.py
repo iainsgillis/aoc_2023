@@ -44,11 +44,6 @@ def filter_candidates(
     ratios = []
     for gc in gear_candidates:
         row, col = gc
-        # adjacent = [
-        #     part
-        #     for part in parts
-        #     if (abs(part.row - row) == 1 and (part.start - 1 <= col <= part.end + 1))
-        # ]
         adjacent = [
             part
             for part in parts
