@@ -1,4 +1,5 @@
 import argparse
+from collections import namedtuple
 from pathlib import Path
 import re
 import sys
@@ -9,18 +10,20 @@ this_file = Path(__file__)
 INPUT_TXT = this_file.parent / (this_file.stem + ".txt")
 
 
-def find_symbols(s: str) -> list[list[int, int]]:
-    ignore_set = set("0123456789.")
-    grid = []
+def find_gear_candidates(s: str) -> list[list[int, int]]:
+    candidates = []
     for i, line in enumerate(s.splitlines()):
         for j, char in enumerate(line):
-            if char in ignore_set:
+            if char != "*":
                 continue
-            grid.append([i, j])
-    return grid
+            candidates.append([i, j])
+    return candidates
 
 
-def find_part_numbers(s: str) -> list[list[int, int]]:
+PartNumber = namedtuple("PartNumber", ["value", "row", "start", "end"])
+
+
+def find_part_numbers(s: str) -> list[PartNumber]:
     nums = []
     ignore_set = set("0123456789.")
     lines = s.splitlines()
@@ -29,14 +32,38 @@ def find_part_numbers(s: str) -> list[list[int, int]]:
             for i_ in range(max(0, i - 1), min(len(lines) - 1, i + 1) + 1):
                 for j_ in range(max(0, m.start() - 1), min(len(line) - 1, m.end() + 1)):
                     if lines[i_][j_] not in ignore_set:
-                        nums.append(int(m.group()))
+                        part_number = PartNumber(int(m.group()), i, m.start(), m.end())
+                        nums.append(part_number)
                         break
     return nums
 
 
+def filter_candidates(
+    gear_candidates: list[list[int, int]], parts: list[PartNumber]
+) -> list[int]:
+    ratios = []
+    for gc in gear_candidates:
+        row, col = gc
+        # adjacent = [
+        #     part
+        #     for part in parts
+        #     if (abs(part.row - row) == 1 and (part.start - 1 <= col <= part.end + 1))
+        # ]
+        adjacent = [part for part in parts if abs(part.row - row) <= 1 and col in range(part.start - 1, part.end + 1)]
+
+
+        if len(adjacent) != 2:
+            continue
+        gear_ratio = adjacent[0].value * adjacent[-1].value
+        ratios.append(gear_ratio)
+    return ratios
+
+
 def solve_aoc(s: str) -> int:
     parts = find_part_numbers(s)
-    return sum(parts)
+    gear_candidates = find_gear_candidates(s)
+    gear_ratios = filter_candidates(gear_candidates, parts)
+    return sum(gear_ratios)
 
 
 SAMPLE = """\
@@ -51,7 +78,7 @@ SAMPLE = """\
 ...$.*....
 .664.598..
 """
-EXPECTED = 4361
+EXPECTED = 467835
 
 
 @pytest.mark.parametrize(
@@ -62,22 +89,28 @@ def test_solve(sample: str, expected: int) -> None:
     assert solve_aoc(sample) == expected
 
 
-def test_find_symbols() -> None:
+def test_find_gear_candidates() -> None:
     sample = """\
-......#
-617*...
-.....+.
+467..
+...*.
+..35.
+.....
+617*.
+.....
 """
-    expected = [[0, 6], [1, 3], [2, 5]]
-    output = find_symbols(sample)
+    expected = [[1, 3], [4, 3]]
+    output = find_gear_candidates(sample)
     assert expected == output
 
 
 @pytest.mark.parametrize(
     "sample, expected",
     [
-        ("......#\n*...617\n.....+.", [617]),
-        ("467..\n...*.\n..35.", [467, 35]),
+        ("......#\n*...617\n.....+.", [PartNumber(617, 1, 4, 7)]),
+        (
+            "467..\n...*.\n..35.",
+            [PartNumber(467, 0, 0, 3), PartNumber(35, 2, 2, 4)],
+        ),
         ("......#\n617.*..\n.....+.", []),
     ],
 )
