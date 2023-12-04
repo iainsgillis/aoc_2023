@@ -6,7 +6,7 @@ import sys
 import pytest
 
 this_file = Path(__file__)
-INPUT_TXT = this_file.stem + ".txt"
+INPUT_TXT = this_file.parent / (this_file.stem + ".txt")
 
 
 def solve_aoc(s: str) -> int:
