@@ -20,12 +20,7 @@ def parse_input(s: str) -> tuple[int]:
 
 def solve_aoc(s: str) -> int:
     duration, record = parse_input(s)
-    n = 0
-    for t in range(duration):
-        distance = t * (duration - t)
-        if record < distance:
-            n += 1
-    return n
+    return sum(1 for t in range(duration) if record < t * (duration - t))
 
 
 SAMPLE = """\
