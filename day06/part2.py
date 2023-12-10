@@ -19,14 +19,13 @@ def parse_input(s: str) -> tuple[int]:
 
 
 def solve_aoc(s: str) -> int:
-    race_duration, record_distance = parse_input(s)
-    number_of_ways_to_beat_this_record = 0
-    for hold_time in range(race_duration):
-        speed = hold_time
-        distance = speed * (race_duration - hold_time)
-        if record_distance < distance:
-            number_of_ways_to_beat_this_record += 1
-    return number_of_ways_to_beat_this_record
+    duration, record = parse_input(s)
+    n = 0
+    for t in range(duration):
+        distance = t * (duration - t)
+        if record < distance:
+            n += 1
+    return n
 
 
 SAMPLE = """\
