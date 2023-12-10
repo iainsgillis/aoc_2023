@@ -7,3 +7,6 @@ disable = ["missing-function-docstring", "missing-module-docstring"]
 [tool.pytest.ini_options]
 python_files = "**/part*.py"
 addopts = "--ignore=template"
+
+[tool.pyright]
+include = ["day*"]
